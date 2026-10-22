@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hamsterdam</title>
+  <meta name="description" content="Websites and software by Eric McKay.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&gt;_</text></svg>">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --fg: #c9d1d9;
+      --dim: #6e7681;
+      --prompt: #7ee787;
+      --path: #79c0ff;
+      --link: #d2a8ff;
+      --accent: #ffa657;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--fg); }
+    body {
+      font: 15px/1.6 ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+      min-height: 100vh;
+      padding: 48px 16px;
+    }
+    main, header { max-width: 720px; margin: 0 auto; }
+    header { margin-bottom: 28px; padding-bottom: 12px; border-bottom: 1px solid #21262d; }
+    header .line { white-space: pre-wrap; }
+    .banner {
+      margin: 0 0 16px; font-family: inherit; line-height: 1;
+      /* shrink the 87-col banner to fit narrow screens */
+      font-size: min(13px, calc((100vw - 32px) / 87 / 0.6)); overflow: hidden;
+      background: linear-gradient(90deg, var(--prompt), var(--path) 55%, var(--link));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      filter: drop-shadow(0 0 6px rgba(121, 192, 255, .35));
+    }
+    .line { white-space: pre-wrap; word-break: break-word; }
+    .ps1 .user { color: var(--prompt); }
+    .ps1 .path { color: var(--path); }
+    .dim { color: var(--dim); }
+    .accent { color: var(--accent); }
+    .block { margin: 0 0 20px; }
+    ul { list-style: none; margin: 4px 0 0; padding: 0; }
+    li { display: grid; grid-template-columns: 2ch 1fr; gap: 0 1ch; padding: 6px 0; }
+    li::before { content: ">"; color: var(--dim); }
+    a { color: var(--link); text-decoration: none; }
+    a:hover, a:focus-visible { background: var(--link); color: var(--bg); outline: none; }
+    .desc { grid-column: 2; color: var(--dim); }
+    .tag { color: var(--accent); }
+    .cursor {
+      display: inline-block; width: 0.6em; height: 1.1em;
+      background: var(--fg); vertical-align: text-bottom;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <pre class="banner" role="img" aria-label="hamsterdam">
+██╗  ██╗ █████╗ ███╗   ███╗███████╗████████╗███████╗██████╗ ██████╗  █████╗ ███╗   ███╗
+██║  ██║██╔══██╗████╗ ████║██╔════╝╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔══██╗████╗ ████║
+███████║███████║██╔████╔██║███████╗   ██║   █████╗  ██████╔╝██║  ██║███████║██╔████╔██║
+██╔══██║██╔══██║██║╚██╔╝██║╚════██║   ██║   ██╔══╝  ██╔══██╗██║  ██║██╔══██║██║╚██╔╝██║
+██║  ██║██║  ██║██║ ╚═╝ ██║███████║   ██║   ███████╗██║  ██║██████╔╝██║  ██║██║ ╚═╝ ██║
+╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝</pre>
+    <div id="top" aria-hidden="true"></div>
+  </header>
+  <main id="term" aria-live="polite"></main>
+
+  <script>
+    // Add links here, e.g.
+    // { name: "my-site", url: "https://example.com", tag: "web", desc: "What it is." },
+    const PROJECTS = [
+      { name: "safg.ca", url: "https://safg.ca", tag: "web",
+        desc: "Independently owned MGA proudly serving financial services groups & advisors across Canada." },
+      { name: "mckayswoodshop.ca", url: "https://mckayswoodshop.ca", tag: "web",
+        desc: "Furniture, built-ins & wood goods." },
+    ];
+
+    const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const prompt = cmd =>
+      `<div class="line ps1"><span class="user">guest@hamsterdam</span>:<span class="path">~</span>$ ${esc(cmd)}</div>`;
+    const link = l => `<a href="${esc(l.url)}"${l.url.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}>${esc(l.name)}</a>`;
+
+    const blocks = [
+      prompt("whoami") +
+        `<div class="line">Eric McKay — I build websites, apps and games.</div>`,
+      prompt("ls ~/projects") +
+        `<ul>${PROJECTS.map(p => `<li><span>${link(p)} <span class="tag">[${esc(p.tag)}]</span></span><span class="desc">${esc(p.desc)}</span></li>`).join("")}</ul>`,
+    ];
+
+    // `top`-style stats: clock, "uptime" since page load, one task per project.
+    const loaded = Date.now();
+    const pad = n => String(n).padStart(2, "0");
+    function renderTop() {
+      const now = new Date();
+      const up = Math.floor((Date.now() - loaded) / 1000);
+      const n = PROJECTS.length;
+      document.getElementById("top").innerHTML = [
+        `top - ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} up ${Math.floor(up / 60)}:${pad(up % 60)}`,
+        `Tasks: <span class="accent">${n}</span> total, <span class="accent">${n}</span> running`,
+      ].map(l => `<div class="line">${l}</div>`).join("");
+    }
+    renderTop();
+    setInterval(renderTop, 1000);
+
+    const term = document.getElementById("term");
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const finalPrompt = `<div class="line ps1"><span class="user">guest@hamsterdam</span>:<span class="path">~</span>$ <span class="cursor"></span></div>`;
+
+    if (reduced) {
+      term.innerHTML = blocks.map(b => `<div class="block">${b}</div>`).join("") + finalPrompt;
+    } else {
+      let i = 0;
+      (function next() {
+        if (i < blocks.length) {
+          term.insertAdjacentHTML("beforeend", `<div class="block">${blocks[i++]}</div>`);
+          setTimeout(next, 250);
+        } else {
+          term.insertAdjacentHTML("beforeend", finalPrompt);
+        }
+      })();
+    }
+  </script>
+  <noscript><p>Enable JavaScript to view this page.</p></noscript>
+</body>
+</html>
