@@ -87,7 +87,7 @@
 
     const blocks = [
       prompt("whoami") +
-        `<div class="line">Eric McKay — I build websites and apps for local businesses.</div>`,
+        `<div class="line">Eric McKay — I build websites, apps and games.</div>`,
       prompt("ls ~/projects") +
         `<ul>${PROJECTS.map(p => `<li><span>${link(p)} <span class="tag">[${esc(p.tag)}]</span></span><span class="desc">${esc(p.desc)}</span></li>`).join("")}</ul>`,
     ];
