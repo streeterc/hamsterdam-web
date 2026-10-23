@@ -107,6 +107,20 @@
     renderTop();
     setInterval(renderTop, 1000);
 
+    // The CSS size assumes 0.6em glyphs; mobile fallback fonts for the box-drawing
+    // chars are often wider, so measure the real width and shrink to fit.
+    const banner = document.querySelector(".banner");
+    function fitBanner() {
+      banner.style.fontSize = "";
+      const avail = banner.clientWidth, used = banner.scrollWidth;
+      if (used > avail) {
+        banner.style.fontSize = parseFloat(getComputedStyle(banner).fontSize) * avail / used + "px";
+      }
+    }
+    fitBanner();
+    document.fonts.ready.then(fitBanner);
+    addEventListener("resize", fitBanner);
+
     const term = document.getElementById("term");
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finalPrompt = `<div class="line ps1"><span class="user">guest@hamsterdam</span>:<span class="path">~</span>$ <span class="cursor"></span></div>`;
