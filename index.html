@@ -92,6 +92,8 @@
         `<div class="line">Eric McKay — I build websites, apps and games.</div>`,
       prompt("ls ~/projects") +
         `<ul>${PROJECTS.map(p => `<li><span>${link(p)} <span class="tag">[${esc(p.tag)}]</span></span><span class="desc">${esc(p.desc)}</span></li>`).join("")}</ul>`,
+      prompt("cat ~/contact") +
+        `<div class="line">In New Lowell or nearby? ${link({ name: "eric@hamsterdam.dev", url: "mailto:eric@hamsterdam.dev" })}</div>`,
     ];
 
     // `top`-style stats: clock, "uptime" since page load, one task per project.
